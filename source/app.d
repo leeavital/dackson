@@ -89,11 +89,6 @@ template JsonCodec(T: long) {
   }
 }
 
-unittest {
-  auto json = parseJSON(`1234`);
-  auto deser = JsonCodec!(long).deserialize(json);
-  assert(deser == 1234);
-}
 
 template JsonCodec(T: string) {
   string deserialize(JSONValue value) {
@@ -101,10 +96,31 @@ template JsonCodec(T: string) {
   }
 }
 
+template JsonCodec(T: bool) {
+  bool deserialize(JSONValue value) {
+    switch(value.type()) {
+      case JSON_TYPE.TRUE:
+       return true;
+      case JSON_TYPE.FALSE:
+       return false;
+      default:
+       throw new Error("value is not a boolean");
+    }
+  }
+}
+
 unittest {
-  auto json = parseJSON(`"hello"`);
-  auto deser = JsonCodec!(string).deserialize(json);
-  assert(deser == "hello");
+  auto json = parseJSON(`1234`);
+  auto deser = JsonCodec!(long).deserialize(json);
+  assert(deser == 1234);
+
+  json = parseJSON(`"hello"`);
+  string deserString = JsonCodec!(string).deserialize(json);
+  assert(deserString == "hello");
+
+  json = parseJSON(`true`);
+  bool deserBool = JsonCodec!(bool).deserialize(json);
+  assert(deserBool == true);
 }
 
 T deserJson(T)(string json) {
@@ -123,8 +139,9 @@ void main()
     long yVal;
   }
 
-  auto line = readln();
-  auto p = line.deserJson!Point;
-  writeln(p);
+
+  // auto line = readln();
+  // Point p = line.deserJson!Point;
+  // writeln(p);
 }
 
