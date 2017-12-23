@@ -1,0 +1,9 @@
+{
+	"name": "dackson",
+	"authors": [
+		"Lee Avital"
+	],
+	"description": "A library for marshalling/unmarshalling JSON into idiomatic D data structures.",
+	"copyright": "Copyright © 2017, Lee Avital",
+	"license": "GPL"
+}
