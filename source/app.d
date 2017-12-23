@@ -107,8 +107,24 @@ unittest {
   assert(deser == "hello");
 }
 
+T deserJson(T)(string json) {
+  alias CODEC = JsonCodec!T;
+  JSONValue value = parseJSON(json);
+  return CODEC.deserialize(value);
+}
+
 void main()
 {
-	writeln("Edit source/app.d to start your project.");
+  struct Point {
+    @JsonProperty("x")
+    long xVal;
+
+    @JsonProperty("y")
+    long yVal;
+  }
+
+  auto line = readln();
+  auto p = line.deserJson!Point;
+  writeln(p);
 }
 
