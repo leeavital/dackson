@@ -2,15 +2,41 @@ import std.stdio;
 
 import std.json;
 
+
+// annotations
 struct JsonProperty {
   string name;
   alias name this;
 }
 
-JsonProperty prop(string name) {
-  return JsonProperty(name);
+// retrieve metadata about how json serde should work for a field in a given type
+template JsonMetadata(T, string field) {
+  import std.traits;
+  alias names = FieldNameTuple!T;
+  alias TYPES = Fields!T;
+
+  // the name of the
+  string serialName() {
+    foreach (name ; names) {
+      if (name == field) {
+        auto udas =  getUDAs!(__traits(getMember, T, name), JsonProperty);
+        string ret = field;
+        static if (udas.length != 0) {
+          ret = udas[0];
+        }
+        return ret;
+      }
+    }
+  } 
 }
 
+unittest {
+  struct Foo {
+    @JsonProperty("bar") string foo;
+  }
+
+  assert(JsonMetadata!(Foo,  "foo").serialName() == "bar");
+}
 
 template JsonCodec(T) {
   import std.traits;
@@ -22,14 +48,9 @@ template JsonCodec(T) {
     foreach (i, string name ; NAMES) {
       alias TYPE = TYPES[i];
       alias Codec = JsonCodec!TYPE;
+      alias META = JsonMetadata!(T, name);
 
-      string actualname = name;
-      alias updas = getUDAs!(__traits(getMember, T, name), JsonProperty);
-      foreach (u ; updas) {
-        actualname = u.name;
-      }
-
-      TYPE value = Codec.deserialize(json[actualname]);
+      TYPE value = Codec.deserialize(json[META.serialName()]);
       __traits(getMember, builder, name) = value;
     }
     return builder;
@@ -54,7 +75,7 @@ unittest {
 
 unittest {
   struct Foo {
-    @prop("baz") string bar;
+    @JsonProperty("baz") string bar;
   }
 
   auto json = parseJSON(`{"baz": "foo"}`);
