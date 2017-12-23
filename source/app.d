@@ -2,17 +2,15 @@ import std.stdio;
 
 import std.json;
 
-// helpers
-string jsonName(T)(string actualFieldName) {
-  auto field = __traits(getMember, T, actualFieldName);
-  writeln(field);
-  return actualFieldName;
-}
-
-// UDAs
 struct JsonProperty {
   string name;
+  alias name this;
 }
+
+JsonProperty prop(string name) {
+  return JsonProperty(name);
+}
+
 
 template JsonCodec(T) {
   import std.traits;
@@ -20,11 +18,18 @@ template JsonCodec(T) {
     alias TYPES = Fields!T;
     alias NAMES = FieldNameTuple!T;
 
-    auto builder = T.init;
-    foreach (i, name ; NAMES) {
+    auto builder = T();
+    foreach (i, string name ; NAMES) {
       alias TYPE = TYPES[i];
       alias Codec = JsonCodec!TYPE;
-      TYPE value = Codec.deserialize(json[name]);
+
+      string actualname = name;
+      alias updas = getUDAs!(__traits(getMember, T, name), JsonProperty);
+      foreach (u ; updas) {
+        actualname = u.name;
+      }
+
+      TYPE value = Codec.deserialize(json[actualname]);
       __traits(getMember, builder, name) = value;
     }
     return builder;
@@ -49,9 +54,12 @@ unittest {
 
 unittest {
   struct Foo {
-    @JsonProperty("baz")
-    string bar;
+    @prop("baz") string bar;
   }
+
+  auto json = parseJSON(`{"baz": "foo"}`);
+  alias F = JsonCodec!Foo;
+  assert(F.deserialize(json) == Foo("foo"));
 }
 
 template JsonCodec(T: long) {
