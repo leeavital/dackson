@@ -27,8 +27,9 @@ template JsonMetadata(T, string field) {
         return ret;
       }
     }
-  } 
+  }
 }
+
 
 unittest {
   struct Foo {
@@ -38,7 +39,28 @@ unittest {
   assert(JsonMetadata!(Foo,  "foo").serialName() == "bar");
 }
 
-template JsonCodec(T) {
+template canZeroConstruct(T) {
+  static if (__traits(compiles, T())) {
+    enum bool canZeroConstruct = true;
+  } else {
+    enum bool canZeroConstruct = false;
+  }
+}
+
+unittest {
+  struct Foo {
+    int bar;
+    int andOne() { return bar + 1; }
+  }
+
+  class Bar {
+    this(int param) {}
+  }
+  assert(canZeroConstruct!Bar == false);
+}
+
+
+template JsonCodec(T) if(canZeroConstruct!T) {
   import std.traits;
   T deserialize(JSONValue json) {
     alias TYPES = Fields!T;
@@ -62,6 +84,7 @@ unittest {
     long x = 0;
     long y = 0;
   }
+
   struct Line {
     Point from;
     Point to;
