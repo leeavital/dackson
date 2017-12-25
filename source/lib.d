@@ -1,5 +1,6 @@
-import std.stdio;
+module dackson;
 
+import std.stdio;
 import std.json;
 
 
@@ -151,20 +152,3 @@ T deserJson(T)(string json) {
   JSONValue value = parseJSON(json);
   return CODEC.deserialize(value);
 }
-
-void main()
-{
-  struct Point {
-    @JsonProperty("x")
-    long xVal;
-
-    @JsonProperty("y")
-    long yVal;
-  }
-
-
-  // auto line = readln();
-  // Point p = line.deserJson!Point;
-  // writeln(p);
-}
-
