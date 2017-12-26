@@ -55,3 +55,9 @@ struct User {
 
 string encoded = encodeJson(User(1234, "John Smith")); // {"user_id":1234,"username":"John Smith"}
 ```
+
+# Future Work
+
+- Support for classes and immutable structures.
+- `@JsonIgnore` annotations
+- Special behavior for missing/null values
