@@ -41,3 +41,17 @@ string json = `{"user_id": 1234, "username": "John Smith"}`;
 User u = json.decodeJson!User;  // User(1234, "John Smith")
 ```
 
+# Serializing
+
+Encode using the `encodeJson` function. The `JsonProperty` annotations will be respected.
+
+```D
+import dackson;
+
+struct User {
+  @JsonProperty("user_id") long userId;
+  string username;
+}
+
+string encoded = encodeJson(User(1234, "John Smith")); // {"user_id":1234,"username":"John Smith"}
+```
