@@ -98,13 +98,13 @@ unittest {
 }
 
 unittest {
-  struct Foo {
-    @JsonProperty("baz") string bar;
+  struct User {
+    @JsonProperty("user_name") string userName;
   }
 
-  auto json = parseJSON(`{"baz": "foo"}`);
-  alias F = JsonCodec!Foo;
-  assert(F.deserialize(json) == Foo("foo"));
+  auto json = parseJSON(`{"user_name": "Lee"}`);
+  alias codec = JsonCodec!User;
+  assert(codec.deserialize(json) == User("Lee"));
 }
 
 template JsonCodec(T: long) {
