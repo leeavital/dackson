@@ -134,12 +134,11 @@ template JsonCodec(T: bool) {
 }
 
 unittest {
-  auto json = parseJSON(`1234`);
-  auto deser = JsonCodec!(long).deserialize(json);
+  auto deser = decodeJson!(long)(`1234`);
   assert(deser == 1234);
 
-  json = parseJSON(`"hello"`);
-  string deserString = JsonCodec!(string).deserialize(json);
+  auto json = parseJSON(`"hello"`);
+  string deserString = `"hello"`.decodeJson!string;
   assert(deserString == "hello");
 
   json = parseJSON(`true`);
@@ -147,7 +146,7 @@ unittest {
   assert(deserBool == true);
 }
 
-T deserJson(T)(string json) {
+T decodeJson(T)(string json) {
   alias CODEC = JsonCodec!T;
   JSONValue value = parseJSON(json);
   return CODEC.deserialize(value);
