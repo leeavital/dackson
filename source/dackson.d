@@ -31,7 +31,6 @@ template JsonMetadata(T, string field) {
   }
 }
 
-
 unittest {
   struct Foo {
     @JsonProperty("bar") string foo;
@@ -132,6 +131,41 @@ unittest {
   assert(codec.deserialize(json) == User("Lee"));
 }
 
+
+template JsonCodec(T : T[]) {
+  T[] deserialize(JSONValue value) {
+    alias CODEC = JsonCodec!T;
+
+    T[] ts; // TODO: pre-size this
+    foreach (i, val ; value.array()) {
+      ts ~= CODEC.deserialize(val);
+    }
+    return ts;
+  }
+
+  void serialize(T[] source, JBuffer buffer) {
+    alias CODEC = JsonCodec!T;
+    buffer.startArray();
+    bool leadSlash = false;
+    foreach (i, s ; source) {
+      if (leadSlash) {
+        buffer.comma();
+      }
+      leadSlash = true;
+      CODEC.serialize(s, buffer);
+    }
+    buffer.endArray();
+  }
+}
+
+unittest {
+  auto json = `[1,2,3,4]`;
+  long[] longs = json.decodeJson!(long[]);
+  assert(longs == [1,2,3,4]);
+  auto encoded = longs.encodeJson;
+  assert(json == encoded);
+}
+
 template JsonCodec(T: long) {
   long deserialize(JSONValue value) {
     return value.integer();
@@ -176,6 +210,8 @@ private struct JBuffer {
 
   JBuffer startObject() { buffer.write("{"); return this; }
   JBuffer endObject() { buffer.write("}"); return this; }
+  JBuffer startArray() { buffer.write("["); return this; }
+  JBuffer endArray() { buffer.write("]"); return this; }
   JBuffer colon() { buffer.write(":"); return this; }
   JBuffer comma() { buffer.write(","); return this; }
   JBuffer numeric(long l) { buffer.writef("%d", l); return this; }
