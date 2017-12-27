@@ -1,5 +1,7 @@
 # dackson
 
+[![Build Status](https://travis-ci.org/leeavital/dackson.svg?branch=master)](https://travis-ci.org/leeavital/dackson)
+
 Dackson is a loose port Java's Jackson library for serializing and deserializing JSON data into user-defined data structures.
 
 # Installation
