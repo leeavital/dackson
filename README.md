@@ -4,13 +4,7 @@ Dackson is a loose port Java's Jackson library for serializing and deserializing
 
 # Installation
 
-Dub is not yet included on the DUB package registry. Users must clone this repository and add it as a local repository:
-
-```
-git clone git@github.com:leeavital/dackson.git
-cd dackson
-dub add-local $PWD
-```
+Dackson is published on the [DUB package registry](http://code.dlang.org/packages/dackson).
 
 # Deserializing
 
