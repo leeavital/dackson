@@ -224,10 +224,26 @@ private struct JBuffer {
   }
 }
 
+
+/**
+  * Decode a JSON string into some datatype.
+  */
 T decodeJson(T)(string json) {
   alias CODEC = JsonCodec!T;
   JSONValue value = parseJSON(json);
   return CODEC.deserialize(value);
+}
+
+///
+unittest {
+  struct User {
+    @JsonProperty("user_name") string userName;
+  }
+
+  string json = `{"user_name": "John Smith"}`;
+  auto decoded = json.decodeJson!User;
+  assert(decoded == User("John Smith"));
+
 }
 
 
