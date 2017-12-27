@@ -230,6 +230,10 @@ T decodeJson(T)(string json) {
   return CODEC.deserialize(value);
 }
 
+
+/**
+  * Encode an object into a JSON string.
+  */
 string encodeJson(T)(T source) {
   alias Codec = JsonCodec!T;
   auto buffer = JBuffer(new OutBuffer());
@@ -237,6 +241,7 @@ string encodeJson(T)(T source) {
   return buffer.buffer.toString();
 }
 
+///
 unittest {
   string json = `1234`;
   auto deser = decodeJson!(long)(json);
