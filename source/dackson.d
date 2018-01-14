@@ -28,6 +28,7 @@ template JsonMetadata(T, string field) {
         return ret;
       }
     }
+    assert(0);
   }
 }
 
