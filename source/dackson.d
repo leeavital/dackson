@@ -28,6 +28,7 @@ template JsonMetadata(T, string field) {
         return ret;
       }
     }
+    assert(0);
   }
 }
 
@@ -166,6 +167,27 @@ unittest {
   assert(json == encoded);
 }
 
+template JsonCodec(T: JSONValue) {
+  JSONValue deserialize(JSONValue v) {
+    return v;
+  }
+
+  void serialize(JSONValue value, JBuffer buffer) {
+    buffer.json(value);
+  }
+}
+
+unittest {
+  struct User {
+    JSONValue data; 
+  }
+  string json = `{"data": {"foo": 1, "bar": [1,2,3]}}`;
+  auto decoded = json.decodeJson!User;
+  assert(decoded == User(JSONValue(["foo": JSONValue(1), "bar": JSONValue([1,2,3])])));
+  
+  assert(decoded == decoded.encodeJson().decodeJson!User);
+}
+
 template JsonCodec(T: long) {
   long deserialize(JSONValue value) {
     return value.integer();
@@ -217,6 +239,7 @@ private struct JBuffer {
   JBuffer numeric(long l) { buffer.writef("%d", l); return this; }
   JBuffer str(string st) { buffer.writef(`"%s"`, escape(st)); return this; }
   JBuffer boolean(bool b) { b ? buffer.write("true") : buffer.write("false"); return this; }
+  JBuffer json(JSONValue value) { buffer.write(value.toString()); return this; }
 
   private string escape(string str) {
     // TODO(lavital): really escape
