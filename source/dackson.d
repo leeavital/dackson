@@ -73,8 +73,10 @@ template JsonCodec(T) if(canZeroConstruct!T) {
       alias Codec = JsonCodec!TYPE;
       alias META = JsonMetadata!(T, name);
 
-      TYPE value = Codec.deserialize(json[META.serialName()]);
-      __traits(getMember, builder, name) = value;
+      if (META.serialName() in json) {
+        TYPE value = Codec.deserialize(json[META.serialName()]);
+        __traits(getMember, builder, name) = value;
+      }
     }
     return builder;
   }
@@ -121,6 +123,7 @@ unittest {
   auto deser = JsonCodec!Line.deserialize(json);
   assert(deser == Line(Point(0, 0), Point(2, 2), "my line"));
 }
+
 
 unittest {
   struct User {
@@ -308,4 +311,8 @@ unittest {
   assert(deserOneField == OneField("hello"));
   serialized = encodeJson(deserOneField);
   assert(serialized == json);
+
+  json = `{}`;
+  auto emptyOneField = json.decodeJson!OneField;
+  assert(emptyOneField == OneField(null));
 }
