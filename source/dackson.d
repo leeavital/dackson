@@ -74,7 +74,7 @@ template JsonCodec(T) if(canZeroConstruct!T) {
       alias META = JsonMetadata!(T, name);
 
       if (META.serialName() in json) {
-        TYPE value = Codec.deserialize(json[META.serialName()]);
+        TYPE value = cast(TYPE)Codec.deserialize(json[META.serialName()]);
         __traits(getMember, builder, name) = value;
       }
     }
@@ -215,9 +215,9 @@ template JsonCodec(T: string) {
 template JsonCodec(T: bool) {
   bool deserialize(JSONValue value) {
     switch(value.type()) {
-      case JSON_TYPE.TRUE:
+      case JSONType.true_:
        return true;
-      case JSON_TYPE.FALSE:
+      case JSONType.false_:
        return false;
       default:
        throw new Error("value is not a boolean");
