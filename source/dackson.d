@@ -201,6 +201,15 @@ template JsonCodec(T: long) {
   }
 }
 
+template JsonCodec(T: float) {
+  float deserialize(JSONValue value) {
+    return value.floating();
+  }
+
+  void serialize(float source, JBuffer buffer) {
+    buffer.floating(source);
+  }
+}
 
 template JsonCodec(T: string) {
   string deserialize(JSONValue value) {
@@ -240,6 +249,7 @@ private struct JBuffer {
   JBuffer colon() { buffer.write(":"); return this; }
   JBuffer comma() { buffer.write(","); return this; }
   JBuffer numeric(long l) { buffer.writef("%d", l); return this; }
+  JBuffer floating(float f) { buffer.writef("%f", f); return this; }
   JBuffer str(string st) { buffer.writef(`"%s"`, escape(st)); return this; }
   JBuffer boolean(bool b) { b ? buffer.write("true") : buffer.write("false"); return this; }
   JBuffer json(JSONValue value) { buffer.write(value.toString()); return this; }
