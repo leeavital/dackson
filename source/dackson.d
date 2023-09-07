@@ -74,7 +74,7 @@ template JsonCodec(T) if(canZeroConstruct!T) {
       alias META = JsonMetadata!(T, name);
 
       if (META.serialName() in json) {
-        TYPE value = Codec.deserialize(json[META.serialName()]);
+        TYPE value = cast(TYPE)Codec.deserialize(json[META.serialName()]);
         __traits(getMember, builder, name) = value;
       }
     }
@@ -201,6 +201,15 @@ template JsonCodec(T: long) {
   }
 }
 
+template JsonCodec(T: float) {
+  float deserialize(JSONValue value) {
+    return value.floating();
+  }
+
+  void serialize(float source, JBuffer buffer) {
+    buffer.floating(source);
+  }
+}
 
 template JsonCodec(T: string) {
   string deserialize(JSONValue value) {
@@ -215,9 +224,9 @@ template JsonCodec(T: string) {
 template JsonCodec(T: bool) {
   bool deserialize(JSONValue value) {
     switch(value.type()) {
-      case JSON_TYPE.TRUE:
+      case JSONType.true_:
        return true;
-      case JSON_TYPE.FALSE:
+      case JSONType.false_:
        return false;
       default:
        throw new Error("value is not a boolean");
@@ -240,6 +249,7 @@ private struct JBuffer {
   JBuffer colon() { buffer.write(":"); return this; }
   JBuffer comma() { buffer.write(","); return this; }
   JBuffer numeric(long l) { buffer.writef("%d", l); return this; }
+  JBuffer floating(float f) { buffer.writef("%f", f); return this; }
   JBuffer str(string st) { buffer.writef(`"%s"`, escape(st)); return this; }
   JBuffer boolean(bool b) { b ? buffer.write("true") : buffer.write("false"); return this; }
   JBuffer json(JSONValue value) { buffer.write(value.toString()); return this; }
